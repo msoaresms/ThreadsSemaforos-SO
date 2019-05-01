@@ -13,11 +13,15 @@ sem_t empty;
 int posWrite = 0;
 int posRead = 0;
 int buffer[10];
+int cheio, vazio;
 
 void produtor(int id) {
     int item;
     while(TRUE) {
-
+        sem_getvalue(&filled, &cheio);
+        if (cheio == 10) {
+            printf("-----BUFFER CHEIO-----\n");
+        }
         sem_wait(&empty);
         sem_wait(&mutex);
         
@@ -28,14 +32,17 @@ void produtor(int id) {
 
         sem_post(&mutex);
         sem_post(&filled);  
-        sleep(id*posWrite);
+        sleep(id*(rand() % 3));
     }  
 }
 
 void consumidor(int id) {
     int item;
     while(TRUE) {
-
+        sem_getvalue(&empty, &vazio);
+        if (vazio == 10) {
+            printf("-----BUFFER VAZIO-----\n");
+        }
         sem_wait(&filled);
         sem_wait(&mutex);
 
@@ -46,7 +53,7 @@ void consumidor(int id) {
         sem_post(&empty);
 
         printf("Consumidor %d retirou %d do buffer\n", id, item);
-        sleep(id*posRead);
+        sleep(id*(rand() % 3));
     }
 }
 
@@ -56,7 +63,7 @@ int main() {
     sem_init(&mutex, 0, 1);
     sem_init(&filled, 0, 0);
     sem_init(&empty, 0, 10); 
-    printf("Semáforos criados\n");
+    printf("Semáforos criados\n\n");
 
 	pthread_t prod1, prod2, prod3, prod4, cons1, cons2, cons3, cons4;
 
