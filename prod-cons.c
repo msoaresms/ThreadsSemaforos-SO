@@ -1,6 +1,7 @@
 #include <pthread.h>
 #include <stdio.h>
 #include <semaphore.h>
+#include <stdlib.h>
 
 #define  FALSE 0
 #define  TRUE  1
@@ -9,21 +10,25 @@ sem_t mutex;
 sem_t filled;
 sem_t empty;
 
-int buffer;
+int posWrite = 0;
+int posRead = 0;
+int buffer[10];
 
 void produtor(int id) {
-    int item = id;
+    int item;
     while(TRUE) {
 
         sem_wait(&empty);
         sem_wait(&mutex);
         
-        buffer = item;
-        printf("%d adicionado ao buffer\n", item);
+        item = rand() % 20;
+        buffer[posWrite%10] = item;
+        posWrite = (posWrite+1) % 10;
+        printf("Produtor %d adicionou %d ao buffer\n", id, item);
 
         sem_post(&mutex);
         sem_post(&filled);  
-        sleep(id);
+        sleep(id*posWrite);
     }  
 }
 
@@ -34,13 +39,14 @@ void consumidor(int id) {
         sem_wait(&filled);
         sem_wait(&mutex);
 
-        item = buffer;
+        item = buffer[posRead%10];
+        posRead = (posRead+1) % 10;
 
         sem_post(&mutex);
         sem_post(&empty);
 
-        printf("%d retirado do buffer\n", item);
-        sleep(id);
+        printf("Consumidor %d retirou %d do buffer\n", id, item);
+        sleep(id*posRead);
     }
 }
 
@@ -49,7 +55,7 @@ int main() {
 
     sem_init(&mutex, 0, 1);
     sem_init(&filled, 0, 0);
-    sem_init(&empty, 0, 1); 
+    sem_init(&empty, 0, 10); 
     printf("Semáforos criados\n");
 
 	pthread_t prod1, prod2, prod3, prod4, cons1, cons2, cons3, cons4;
