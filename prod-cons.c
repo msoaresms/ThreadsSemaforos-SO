@@ -3,12 +3,9 @@
 #include <semaphore.h>
 #include <stdlib.h>
 
-#define  FALSE 0
 #define  TRUE  1
 
-sem_t mutex; 
-sem_t filled;
-sem_t empty;
+sem_t mutex, filled, empty;
 
 int posWrite = 0;
 int posRead = 0;
@@ -65,12 +62,10 @@ int main() {
     sem_init(&empty, 0, 10); 
     printf("Semáforos criados\n\n");
 
-	pthread_t prod1, prod2, prod3, prod4, cons1, cons2, cons3, cons4;
+	pthread_t prod1, prod2, cons1, cons2, cons3, cons4;
 
 	pthread_create(&prod1, NULL, produtor, 1);
 	pthread_create(&prod2, NULL, produtor, 2);
-	pthread_create(&prod3, NULL, produtor, 3);
-    pthread_create(&prod4, NULL, produtor, 4);
 
 	pthread_create(&cons1, NULL, consumidor, 1);
 	pthread_create(&cons2, NULL, consumidor, 2);
@@ -79,8 +74,6 @@ int main() {
 
 	pthread_join(prod1, NULL);
 	pthread_join(prod2, NULL);
-	pthread_join(prod3, NULL);
-    pthread_join(prod4, NULL);
 	pthread_join(cons1, NULL);
 	pthread_join(cons2, NULL);
     pthread_join(cons3, NULL);
